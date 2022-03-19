@@ -4,7 +4,11 @@ const launcher = require('chrome-launcher')
 
 export const chromeFlags = [
     '--no-first-run',
-    '--window-size=1366,768'
+    '--window-size=1366,768',
+    '--no-sandbox',
+    '--disable-setuid-sandbox',
+    '--disable-dev-shm-usage',
+    '--no-xshm'
 ]
 
 const testChrome = async event => {

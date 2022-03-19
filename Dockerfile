@@ -23,7 +23,7 @@ RUN apt-get update && apt-get -y install google-chrome-stable
 RUN apt install -y curl wget git g++ make cmake unzip libcurl4-openssl-dev autoconf libtool
 
 # install NodeJS
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt install -y nodejs
 RUN npm install -g yarn
 
@@ -49,5 +49,7 @@ ENTRYPOINT [ "/bootstrap.sh" ]
 COPY function/. ${FUNCTION_DIR}
 RUN yarn build
 WORKDIR ${FUNCTION_DIR}/.build
+
+ENV HOME /tmp
 
 CMD ["app.handler"]

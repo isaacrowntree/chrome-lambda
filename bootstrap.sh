@@ -1,6 +1,7 @@
-#!/bin/sh
+#!/bin/bash
 
 # Based on: https://medium.com/dot-debug/running-chrome-in-a-docker-container-a55e7f4da4a8
+# And: https://incolumitas.com/2021/01/23/run-xvfb-on-aws-lambda-container/
 
 readonly G_LOG_I='[INFO]'
 readonly G_LOG_W='[WARN]'
@@ -13,13 +14,14 @@ main() {
 
 launch_xvfb() {
     # Set defaults if the user did not specify envs.
-    export DISPLAY=${XVFB_DISPLAY:-:1}
+    export DISPLAY=${XVFB_DISPLAY:-:99}
     local screen=${XVFB_SCREEN:-0}
-    local resolution=${XVFB_RESOLUTION:-1280x1024x24}
+    local resolution=${XVFB_RESOLUTION:-1920x1280x24}
     local timeout=${XVFB_TIMEOUT:-5}
 
     # Start and wait for either Xvfb to be fully up or we hit the timeout.
-    Xvfb ${DISPLAY} -screen ${screen} ${resolution} &
+    # Xvfb ${DISPLAY} -screen ${screen} ${resolution} &
+    Xvfb $DISPLAY -nolisten inet6 -nolisten tcp -nolisten unix -screen ${screen} ${resolution} +extension RANDR >/dev/null 2>&1 &
     local loopCount=0
     until xdpyinfo -display ${DISPLAY} > /dev/null 2>&1
     do
@@ -52,7 +54,7 @@ launch_window_manager() {
 }
 
 main
-if [ -z "${AWS_LAMBDA_RUNTIME_API}" ]; then 
+if [ -z "${AWS_LAMBDA_RUNTIME_API}" ]; then
   exec /usr/local/bin/aws-lambda-rie /usr/bin/npx aws-lambda-ric $1
 else
   exec /usr/bin/npx aws-lambda-ric $1
